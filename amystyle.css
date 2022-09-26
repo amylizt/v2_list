@@ -1,0 +1,29 @@
+label{
+    display: inline-block;
+    float: left;
+    clear: left;
+    width: 250px;
+    text-align: left;
+}
+input {
+  display: inline-block;
+  float: left;
+}
+
+html {
+	height:100%;
+}
+
+body {
+	background: linear-gradient(#e66465, #9198e5); 
+	background-repeat: no-repeat;
+	font-family: 'Roboto', sans-serif;	
+}
+textarea {
+	font-family: "Times New Roman", Times, serif;
+	font-size:16px;
+	color:darkblue;
+	height: 400px;
+	width: 900px;
+
+}
