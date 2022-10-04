@@ -8,32 +8,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 <body>
-	<h1>LIST</h1>
-	<form id="frm1">
-		<label>TMO analyst:</label><input type="text" name="Analyst" id="name1"><br>
-		<label>Stream :</label><input type="text" name="Stream" id="name2"><br>
-		<label>Description :</label><input type="text" name="Description" id="name3"><br>
-		<label>Defect :</label><input type="text" name="Defect" id="name4"><br>
-		<label>ACE :</label><input type="text" name="ACE" id="name5"><br>
-		<label>Power BI :</label><input type="text" name="PowerBi" id="name6"><br>
-		<label>NRT: </label><input type="text" name="NRT" id="name7"><br>
-		<label>Rule : </label><input type="text" name="Rule" id="name8"><br>
-		<label>TL : </label><input type="text" name="TL"id="name9"><br>
-		<label>Sprint : </label><input type="text" name="Sprint"id="name10"><br>
-		<label>Release Target : </label><input type="text" name="ReleaseTarget"id="name11"><br>
-		<label>EBD : </label><input type="text" name="EBD" id="name12"><br>
-		<label>Environment : </label><input type="text" name="Environment"id="name13"><br>
-		<label>Comment : </label><input type="text" name="Comment"id="name14"><br>
-		<label>Business Logic : </label><input type="text" name="BusinessLogic" id="name15"><br>
-		<label>Table Access : </label><input type="text" name="TableAccess"id="name16"><br>
-		<label>Business Sessions : </label><input type="text" name="BusinessSessions"id="name17"><br>
-		<label>LOE : </label><input type="text" name="LOE"id="name18"><br>
-		<label>SignOff : </label><input type="text" name="SignOff"id="name19"><br><br>
-		<button type="submit" id="submitBtn" name="submit">Display</button>
-	</form> <br><br>
-	<textarea id = "textarea"></textarea>
-	<script src="main.js"></script>
+<div class="container dynamic-form">
+  <div class="row">
+    <div class="foo col">
+      <h3>Dynamic Form</h3>
+      <hr />
+      <p>
+        The following is a lightweight jQuery utility that will build a form based on a JSON config.
+      </p>
+    </div>
+  <div class="dynamic-form__view col-9">
+    <div id="form-container">  
+		<script src="main.js"></script>
+ 	</div>
+  </div>
+</div>
 </body>
 </html>

@@ -1,58 +1,327 @@
-frm1.onsubmit = (e) => {
-	e.preventDefault();
-	const formData = new FormData(frm1);
+// Configuration that can live anywhere, but must be passed to the form builder
+var configuration = {
+  title: "Example form",
+  action: "/replace/this/url",
+  method: "post",
+  onValidSubmit: function (formState) {console.error('YAY a success!!', formState)}, // note: this is just a hook into the valid submit if you do not want to specify an action
+  inputs: [
+    {
+      title: "Example User Name",
+      id: "user-input",
+      placeholder: "user name",
+      subtext: 'this is a desc for the input',
+      type: "text",
+      validators: ['required']
+    },
+    {
+      type: "header",
+      text: "First form section"
+    },
+    {
+      title: "Example Phone Number",
+      id: "phone-input",
+      placeholder: "123-456-7890",
+      subtext: 'this is a desc for the input',
+      type: "phone",
+      validators: ['phone']
+    },
+    {
+      title: "Example Email",
+      id: "email-input",
+      placeholder: "example@email.com",
+      subtext: 'this is a desc for the input',
+      type: "email",
+      validators: ['email']
+    },
+    {
+      title: "Example Password",
+      id: "password-input",
+      placeholder: "Password",
+      type: "password",
+      validators: ['required']
+    },
+    {
+      type: "header",
+      text: "Second form section"
+    },
+    {
+      title: "Example Select Dropdown",
+      id: "select-input",
+      type: "select",
+      options: [
+        {text: "option 1", value: "value_1"},
+        {text: "option 2", value: "value_2"},
+        {text: "option 3", value: "value_3"},
+        {text: "option 4", value: "value_4"}
+      ],
+      validators: ['required']
+    },
+    {
+      title: "Example Radio buttons",
+      id: "radio-input",
+      type: "radio",
+      options: [
+        {text: "radio 1", value: "radio_1"},
+        {text: "radio 2", value: "radio_2"},
+        {text: "radio 3", value: "radio_3"},
+        {text: "radio 4", value: "radio_4"}
+      ],
+      validators: ['required']
+    },
+        {
+      title: "Example Checkbox",
+      id: "check-input",
+      type: "checkbox",
+      options: [
+        {text: "check 1", value: "check_1"},
+        {text: "check 2", value: "check_2"},
+        {text: "check 3", value: "check_3"},
+        {text: "check 4", value: "check_4"}
+      ]
+    },
+  ]
+};
 
-	console.log("Form Data");
-	for (let obj of formData) {
-		console.log(obj);
-	}
-	var analyst = formData.get('Analyst');
-	var Stream = formData.get('Stream');
-	var Description = formData.get('Description');
-	var Defect = formData.get('Defect');
-	var ACE = formData.get('ACE');
-	var PowerBi = formData.get('PowerBi');
-	var NRT = formData.get('NRT');
-	var Rule = formData.get('Rule');
-	var TL = formData.get('TL');
-	var Sprint = formData.get('Sprint');
-	var ReleaseTarget = formData.get('ReleaseTarget');
-	var EBD = formData.get('EBD');
-	var Environment = formData.get('Environment');
-	var Comment = formData.get('Comment');
-	var BusinessLogic = formData.get('BusinessLogic');
-	var TableAccess = formData.get('TableAccess');
-	var BusinessSessions = formData.get('BusinessSessions');
-	var LOE = formData.get('LOE');
-	var Signoff = formData.get('SignOff');
-	var txt = document.getElementById('textarea');
-	txt.value='\u2022'+"  TMO Analyst (to request approval): " + analyst +'\n'+
-	'\u2022'+" Stream to which it relates (R1/R2/R3/DLC/ASW/etc.):  " + Stream +	
-	'\u2022'+" Description (make it as descriptive as possible):  " + Description +'\n'+
-	'\u2022'+" Defect (if there is an INC or JID related):  " + Defect +'\n'+
-	'\u2022'+" Is it an ACE mapping issue (in which case it will be MIRA or MIRMA):  " + ACE +'\n'+
-	'\u2022'+" Is there Power BI impact (in which case the LOE should cover only backend work, and timeline refers only to backend work):  " + PowerBi +'\n'+
-	'\u2022'+" Is there impact on NRT:  " + NRT +'\n'+
-	'\u2022'+" Rule number(s) affected, if any:  " + Rule +'\n'+
-	'\u2022'+" cVidya TL (Gali/Devendra/Amy/Bhushan/Tushar/ etc.):  " + TL +'\n'+
-	'\u2022'+" Sprint Target for development (in which sprint you think that you will be ready to develop, SP7/SP8/etc.):  " + Sprint +'\n'+
-	'\u2022'+" Release Target (Mar/Apr/etc. Can be the release where the sprint above goes to Production, or an earlier one if there is a request for down porting and feasibility to do it):  " + ReleaseTarget +'\n'+
-	'\u2022'+" If the MIR is going to be tested separate from the sprint, indicate the EBD:  " + EBD +'\n'+
-	'\u2022'+" If the MIR is going to be tested separate from the sprint, indicate on which environment:  " + Environment +'\n'+
-	'\u2022'+" Comment (if any, to be added to Remarks in the tracker):  " + Comment +'\n'+
-	'\u2022'+" Do we have all the business logic to support the change:  " + BusinessLogic +'\n'+
-	'\u2022'+" Do we have all required data, table access, etc.:  " + TableAccess +'\n'+
-	'\u2022'+" Is there need for grooming sessions with business:  " + BusinessSessions +'\n'+
-	'\u2022'+" If there is enough information, what is the LOE (can be changed later):  " + LOE +'\n'+
-	'\u2022'+" Is there need (in your opinion) to submit formal design for sign-off?:  " + Signoff;
+// Code run when the page is ready
+ $( document ).ready(function () {
+  formBuilder.buildForm('form-container', configuration);
+})
 
-	console.log(analyst);
+var formBuilder = (function () {
+  // ****************************
+  // ***** VALIDATION LOGIC *****
+  // ****************************
+  var errorStrings = {
+    required: 'Field is required',
+    email: 'Please enter a valid email',
+    phone: 'Please enter a valid phone number',
+  };
+  var regexValues = {
+    email: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    phone: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/
+  };
+  var fieldValidators = {
+    required: requiredValidator,
+    email: regexValidatorById.bind(null, 'email'),
+    phone: regexValidatorById.bind(null, 'phone')
+  };
+  
+  function requiredValidator (value) {
+    return (value) ? null : errorStrings.required;
+  }
+  
+  function regexValidatorById (id, textValue) {
+    return (regexValues[id].test(textValue)) ? null : errorStrings[id];
+  }
+  
+  // ******************************************
+  // ***** LOGIC TO BUILD AND MANAGE FORM *****
+  // ******************************************
+  function buildForm (containerId, config) {
+    var formState = getInitialFormState(config.inputs);
+    var formValidators = getFormValidators(config.inputs);
+    var formErrors = {};
+    
+    function getInitialFormState (inputs) {
+      return inputs.reduce(function (state, config) {
+        state[config.id] = config.defaultValue;
+        
+        return state;
+      }, {});
+    }
+    
+    function getFormValidators (inputs) {
+      return inputs.reduce(function (formValidators, config) {
+        var validators = config.validators;
+        
+        if (validators && validators.length) {
+          formValidators[config.id] = validators;  
+        }
+        
+        return formValidators;
+      }, {});
+    };
+    
+    function renderForm () {
+      var $form = $('<form class="form-builder-content"></form>')
+        .prop({
+          action: config.action,
+          method: config.method
+        })
+        .append(renderTitle(config.title))
+        .append(config.inputs.map(renderInput))
+        .append(renderSubmitButton(config.submitText));
+      
+      $(`#${containerId}`).html($form);
+    }
+    
+    function renderTitle (title) {
+      return (title) ? `<h2>${title}</h2>` : '';
+    }
+    
+    function renderInput (config) {
+      var renderMethods = {
+        text: renderTextInput,
+        select: renderOptionsInput,
+        radio: renderRadioInput,
+        checkbox: renderRadioInput,
+        header: renderSectionHeader
+      };
+      var renderMethod = renderMethods[config.type] || renderMethods.text;
+      
+      return renderMethod(config);
+    }
+    
+    function renderTextInput (config) {
+      var input = `<input type="${config.type}" class="form-control" id="${config.id}" placeholder="${config.placeholder}" />`;
+      
+      return renderFormGroup(input, config);
+    }
+    
+    function renderOptionsInput (config) {
+      var options = config.options.map(function (option) {
+        return `<option value="${option.value}">${option.text}</option>`;  
+      }).join('');
+      var select = `<select id="${config.id}" class="form-control">${options}</select>`;
+      
+      return renderFormGroup(select, config);
+    }
+    
+    function renderFormGroup (input, config) {
+      return `
+        <div class="form-group">
+          <label for="${config.id}">${config.title}</label>
+          ${input}
+          ${renderError()}
+          ${renderSubtext(config.subtext)}
+        </div> 
+      `;
+    }
+    
+    function renderRadioInput (config, index) {
+      var radios = config.options.map(function (item, index, array) {
+        var errors = (array.length - 1 === index) ? renderError() : '';
+        
+        return `
+          <div class="form-check">
+            <input class="form-check-input" type="${config.type}" id="${config.id + index}" name="${config.id}" value="${item.value}">
+            <label class="form-check-label" for="${config.id + index}">${item.text}</label>
+             ${errors}
+          </div> 
+        `;
+      }).join('');
+      
+      return `
+        <fieldset class="form-group" id="${config.id}">
+          <div>${config.title}</div>
+          ${radios}
+        </fieldset>
+      `;
+    }
+    
+    function renderError () {
+      return  `<div class="form-error-text invalid-feedback"></div>`; 
+    }
+    
+    function renderSubtext (text) {
+      return (text) ? `<small class="form-text text-muted">${text}</small>` : '';
+    }
+        
+    function renderSubmitButton (text) {
+      return `<div class="text-right"><button class="btn btn-primary form-submit-button" type="submit">${text || 'Submit'}</button></div>`;
+    }
+    
+    function renderSectionHeader (config) {
+      return `<h4>${config.text}</h4>`;  
+    }
+    
+    function addEventHandlers () {
+      $(`#${containerId}`)
+        .on('focusout', '.form-control', handleInputChange)
+        .on('change', '.form-check-input', handleCheckboxChange)
+        .on('click', '.form-submit-button', handleSubmit);
+    }
+    
+    function handleInputChange (event) {
+      updateInputAndValidate(event.target.id, event.target.value);
+    }
+    
+    function handleCheckboxChange (event) {
+      updateInputAndValidate(event.target.name, event.target.value);
+    }
+    
+    function updateInputAndValidate (id, value) {
+      formState[id] = value;
+      validateField(id);
+      updateWithErrors();
+    }
+    
+    function handleSubmit (event) {
+      validateAll();
+      
+      if (!isFormValid()) {
+        event.preventDefault();
+        updateWithErrors();
+      } else {
+        config.onValidSubmit && config.onValidSubmit(formState);
+      }
+    }
+    
+    function isFormValid () {
+      var valid = true;
+      
+      Object.keys(formState).map(function (id) {
+        if (formErrors[id]) {
+          valid = false;
+        }
+      });
+      
+      return valid;
+    }
+     
+    function validateAll () {
+      Object.keys(formState).map(validateField);
+    }
+    
+    function validateField (id) {
+      var validatorList = formValidators[id] || [];
 
-}
+      validatorList.map(function (validatorKey) {
+        var validator = fieldValidators[validatorKey];
 
+        if (validator) {
+          formErrors[id] = validator(formState[id]);
+        }
+      });
+    }
+    
+    function updateWithErrors () {
+      Object.keys(formState).map(function (inputId) {
+        var error = formErrors[inputId];
+        var invalidClass = 'is-invalid';
+        var errorSelector = '.form-error-text';
+        var checkSelector = '.form-check-input';
+        var classMethod = (error) ? 'addClass' : 'removeClass';
+        var $input =$(`#${inputId}`);
+        var $checkboxes = $input.find(checkSelector);
+        var $error = ($checkboxes.length) ?  $input.find(errorSelector) : $input.parent().find(errorSelector);
+        
+        $input[classMethod](invalidClass);
+        $checkboxes[classMethod](invalidClass);
+        $error.html(error);
+      });
+    }
 
-
-
-
-
-
+    (function init () {
+      renderForm();
+      addEventHandlers();
+    }());
+  }
+  
+  // *************************
+  // **** PUBLIC METHODS *****
+  // *************************
+  return {
+    buildForm: buildForm
+  };
+}());
